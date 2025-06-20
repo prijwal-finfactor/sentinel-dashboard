@@ -1,8 +1,17 @@
+export interface LoginRequest {
+  userId: string;
+  password: string;
+}
+
+export interface LoginResponse {
+  token: string;
+}
+
 export interface Tenant {
   id: string;
   name: string;
   description: string;
-  status: 'active' | 'inactive' | 'suspended';
+  status: "active" | "inactive" | "suspended";
   createdAt: string;
   processCount: number;
   country: string;
@@ -27,7 +36,7 @@ export interface Process {
   startDate: string;
   endDate: string;
   lastRunDate: string;
-  status: 'running' | 'completed' | 'failed' | 'paused';
+  status: "running" | "completed" | "failed" | "paused";
   runCount: number;
   category: string;
 }
@@ -36,7 +45,7 @@ export interface ProcessRun {
   id: string;
   processId: string;
   runDate: string;
-  status: 'success' | 'failed' | 'in-progress';
+  status: "success" | "failed" | "in-progress";
   duration: number; // in minutes
   usersInvolved: number;
   recordsProcessed: number;
@@ -56,7 +65,7 @@ export interface ProcessRunDetail {
   id: string;
   processId: string;
   runDate: string;
-  status: 'success' | 'failed' | 'in-progress';
+  status: "success" | "failed" | "in-progress";
   duration: number;
   users: UserTriggerSummary[];
   recordsProcessed: number;
@@ -74,7 +83,7 @@ export interface TriggerSummary {
   id: string;
   name: string;
   type: string;
-  severity: 'low' | 'medium' | 'high' | 'critical';
+  severity: "low" | "medium" | "high" | "critical";
   hitCount: number;
   description: string;
 }
@@ -83,7 +92,7 @@ export interface TriggerDetail {
   id: string;
   name: string;
   type: string;
-  severity: 'low' | 'medium' | 'high' | 'critical';
+  severity: "low" | "medium" | "high" | "critical";
   description: string;
   ruleDefinition: string;
   transactions: Transaction[];
@@ -99,7 +108,7 @@ export interface Transaction {
   toAccount: string;
   timestamp: string;
   description: string;
-  status: 'completed' | 'pending' | 'failed';
+  status: "completed" | "pending" | "failed";
   riskScore: number;
   flaggedReasons: string[];
 }

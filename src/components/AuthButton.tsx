@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
-import { Lock, LockOpen, User, LogOut } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { AuthModal } from '@/components/AuthModal';
-import { useAppContext } from '@/contexts/AppContext';
+import { useState } from "react";
+import { Lock, LockOpen, User, LogOut } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { AuthModal } from "@/components/AuthModal";
+import { useAppContext } from "@/contexts/AppContext";
 
 export function AuthButton() {
   const [showAuthModal, setShowAuthModal] = useState(false);
@@ -30,8 +30,8 @@ export function AuthButton() {
         size="sm"
         className={`flex items-center space-x-2 transition-all duration-200 ${
           isAuthenticated
-            ? 'border-status-success text-status-success hover:bg-surface-linked'
-            : 'border-text-warning text-text-warning hover:bg-support-warning'
+            ? "border-status-success text-status-success hover:bg-surface-linked"
+            : "border-text-warning text-text-warning hover:bg-support-warning"
         }`}
       >
         {isAuthenticated ? (
@@ -54,8 +54,12 @@ export function AuthButton() {
             <div className="flex items-center space-x-2">
               <User className="h-4 w-4 text-text-secondary" />
               <div>
-                <p className="text-sm font-medium text-text-primary">{authUser?.username}</p>
-                <p className="text-xs text-text-secondary">User ID: {authUser?.userId}</p>
+                <p className="text-sm font-medium text-text-primary">
+                  {authUser?.username}
+                </p>
+                <p className="text-xs text-text-secondary">
+                  User ID: {authUser?.userId}
+                </p>
               </div>
             </div>
           </div>
@@ -80,9 +84,7 @@ export function AuthButton() {
       )}
 
       {/* Auth Modal */}
-      {showAuthModal && (
-        <AuthModal onClose={() => setShowAuthModal(false)} />
-      )}
+      {showAuthModal && <AuthModal onClose={() => setShowAuthModal(false)} />}
     </div>
   );
 }

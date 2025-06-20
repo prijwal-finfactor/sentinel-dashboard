@@ -1,7 +1,8 @@
-import React, { createContext, useContext, useReducer, ReactNode } from 'react';
+import { createContext, useContext, useReducer, ReactNode } from "react";
 
 // Define a flexible state type that can hold anything
 interface AppState {
+  token: string | null;
   selectedTenant: any;
   selectedProcess: any;
   user: any;
@@ -10,7 +11,6 @@ interface AppState {
   cache: any;
   // Authentication state
   isAuthenticated: boolean;
-  token: string | null;
   authUser: {
     userId: string;
     username: string;
@@ -18,17 +18,20 @@ interface AppState {
   [key: string]: any; // Allow any additional properties
 }
 
-type AppAction = 
-  | { type: 'SET_SELECTED_TENANT'; payload: any }
-  | { type: 'SET_SELECTED_PROCESS'; payload: any }
-  | { type: 'SET_USER'; payload: any }
-  | { type: 'SET_THEME'; payload: any }
-  | { type: 'SET_PREFERENCES'; payload: any }
-  | { type: 'SET_CACHE'; payload: any }
-  | { type: 'SET_CUSTOM'; key: string; payload: any }
-  | { type: 'LOGIN'; payload: { token: string; user: { userId: string; username: string } } }
-  | { type: 'LOGOUT' }
-  | { type: 'CLEAR_STATE' };
+type AppAction =
+  | { type: "SET_SELECTED_TENANT"; payload: any }
+  | { type: "SET_SELECTED_PROCESS"; payload: any }
+  | { type: "SET_USER"; payload: any }
+  | { type: "SET_THEME"; payload: any }
+  | { type: "SET_PREFERENCES"; payload: any }
+  | { type: "SET_CACHE"; payload: any }
+  | { type: "SET_CUSTOM"; key: string; payload: any }
+  | {
+      type: "LOGIN";
+      payload: { token: string };
+    }
+  | { type: "LOGOUT" }
+  | { type: "CLEAR_STATE" };
 
 interface AppContextType {
   state: AppState;
@@ -41,8 +44,7 @@ interface AppContextType {
   setCustom: (key: string, value: any) => void;
   clearState: () => void;
   getState: (key?: string) => any;
-  // Authentication methods
-  login: (token: string, user: { userId: string; username: string }) => void;
+  login: (token: string) => void;
   logout: () => void;
   isAuthenticated: boolean;
   token: string | null;
@@ -53,7 +55,7 @@ const initialState: AppState = {
   selectedTenant: null,
   selectedProcess: null,
   user: null,
-  theme: 'light',
+  theme: "light",
   preferences: {},
   cache: {},
   // Authentication initial state
@@ -64,35 +66,34 @@ const initialState: AppState = {
 
 function appReducer(state: AppState, action: AppAction): AppState {
   switch (action.type) {
-    case 'SET_SELECTED_TENANT':
+    case "SET_SELECTED_TENANT":
       return { ...state, selectedTenant: action.payload };
-    case 'SET_SELECTED_PROCESS':
+    case "SET_SELECTED_PROCESS":
       return { ...state, selectedProcess: action.payload };
-    case 'SET_USER':
+    case "SET_USER":
       return { ...state, user: action.payload };
-    case 'SET_THEME':
+    case "SET_THEME":
       return { ...state, theme: action.payload };
-    case 'SET_PREFERENCES':
+    case "SET_PREFERENCES":
       return { ...state, preferences: action.payload };
-    case 'SET_CACHE':
+    case "SET_CACHE":
       return { ...state, cache: action.payload };
-    case 'SET_CUSTOM':
+    case "SET_CUSTOM":
       return { ...state, [action.key]: action.payload };
-    case 'LOGIN':
+    case "LOGIN":
       return {
         ...state,
         isAuthenticated: true,
         token: action.payload.token,
-        authUser: action.payload.user,
       };
-    case 'LOGOUT':
+    case "LOGOUT":
       return {
         ...state,
         isAuthenticated: false,
         token: null,
         authUser: null,
       };
-    case 'CLEAR_STATE':
+    case "CLEAR_STATE":
       return initialState;
     default:
       return state;
@@ -105,35 +106,35 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(appReducer, initialState);
 
   const setSelectedTenant = (tenant: any) => {
-    dispatch({ type: 'SET_SELECTED_TENANT', payload: tenant });
+    dispatch({ type: "SET_SELECTED_TENANT", payload: tenant });
   };
 
   const setSelectedProcess = (process: any) => {
-    dispatch({ type: 'SET_SELECTED_PROCESS', payload: process });
+    dispatch({ type: "SET_SELECTED_PROCESS", payload: process });
   };
 
   const setUser = (user: any) => {
-    dispatch({ type: 'SET_USER', payload: user });
+    dispatch({ type: "SET_USER", payload: user });
   };
 
   const setTheme = (theme: any) => {
-    dispatch({ type: 'SET_THEME', payload: theme });
+    dispatch({ type: "SET_THEME", payload: theme });
   };
 
   const setPreferences = (preferences: any) => {
-    dispatch({ type: 'SET_PREFERENCES', payload: preferences });
+    dispatch({ type: "SET_PREFERENCES", payload: preferences });
   };
 
   const setCache = (cache: any) => {
-    dispatch({ type: 'SET_CACHE', payload: cache });
+    dispatch({ type: "SET_CACHE", payload: cache });
   };
 
   const setCustom = (key: string, value: any) => {
-    dispatch({ type: 'SET_CUSTOM', key, payload: value });
+    dispatch({ type: "SET_CUSTOM", key, payload: value });
   };
 
   const clearState = () => {
-    dispatch({ type: 'CLEAR_STATE' });
+    dispatch({ type: "CLEAR_STATE" });
   };
 
   const getState = (key?: string) => {
@@ -144,38 +145,21 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   // Authentication methods
-  const login = (token: string, user: { userId: string; username: string }) => {
-    dispatch({ type: 'LOGIN', payload: { token, user } });
+  const login = (token: string) => {
+    dispatch({ type: "LOGIN", payload: { token } });
     // Store in localStorage for persistence
-    localStorage.setItem('auth_token', token);
-    localStorage.setItem('auth_user', JSON.stringify(user));
+    localStorage.setItem("auth_token", token);
   };
 
   const logout = () => {
-    dispatch({ type: 'LOGOUT' });
+    dispatch({ type: "LOGOUT" });
     // Remove from localStorage
-    localStorage.removeItem('auth_token');
-    localStorage.removeItem('auth_user');
+    localStorage.removeItem("auth_token");
+    localStorage.removeItem("auth_user");
   };
 
-  // Initialize auth state from localStorage on app start
-  React.useEffect(() => {
-    const storedToken = localStorage.getItem('auth_token');
-    const storedUser = localStorage.getItem('auth_user');
-    
-    if (storedToken && storedUser) {
-      try {
-        const user = JSON.parse(storedUser);
-        dispatch({ type: 'LOGIN', payload: { token: storedToken, user } });
-      } catch (error) {
-        // Clear invalid stored data
-        localStorage.removeItem('auth_token');
-        localStorage.removeItem('auth_user');
-      }
-    }
-  }, []);
-
   const value: AppContextType = {
+    login,
     state,
     setSelectedTenant,
     setSelectedProcess,
@@ -186,8 +170,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setCustom,
     clearState,
     getState,
-    // Authentication
-    login,
     logout,
     isAuthenticated: state.isAuthenticated,
     token: state.token,
@@ -200,7 +182,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 export function useAppContext() {
   const context = useContext(AppContext);
   if (context === undefined) {
-    throw new Error('useAppContext must be used within an AppProvider');
+    throw new Error("useAppContext must be used within an AppProvider");
   }
   return context;
 }

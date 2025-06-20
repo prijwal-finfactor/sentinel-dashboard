@@ -1,8 +1,11 @@
-import React, { useState } from 'react';
-import { X, Lock, User, Key, AlertCircle } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { useAppContext } from '@/contexts/AppContext';
+import React, { useState } from "react";
+import { X, Lock, User, Key, AlertCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { useAppContext } from "@/contexts/AppContext";
+import { LoginRequest } from "@/types";
+import { api } from "@/utils/api";
+import { todo } from "node:test";
 
 interface AuthModalProps {
   onClose: () => void;
@@ -10,51 +13,51 @@ interface AuthModalProps {
 
 export function AuthModal({ onClose }: AuthModalProps) {
   const [credentials, setCredentials] = useState({
-    userId: '',
-    password: '',
+    userId: "",
+    password: "",
   });
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const { login } = useAppContext();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setCredentials(prev => ({ ...prev, [name]: value }));
-    setError(''); // Clear error when user types
+    setCredentials((prev) => ({ ...prev, [name]: value }));
+    setError("");
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
-
+    setError("");
     try {
-      // Mock authentication - simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const payload: LoginRequest = {
+        userId: credentials.userId.trim(),
+        password: credentials.password.trim(),
+      };
 
-      // Mock authentication logic
-      // Accept any non-empty credentials for demo purposes
-      if (credentials.userId.trim() && credentials.password.trim()) {
-        // Generate a mock token
-        const mockToken = `mock_token_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-        
-        // Mock user data
-        const mockUser = {
-          userId: credentials.userId,
-          username: credentials.userId,
-          role: 'Analyst',
-          department: 'Risk Management'
-        };
-
-        // Store authentication data
-        login(mockToken, mockUser);
-        onClose();
-      } else {
-        setError('Please enter both User ID and password.');
+      if (!payload.userId || !payload.password) {
+        setError("Please enter both User ID and password.");
+        setLoading(false);
+        return;
       }
+
+      const response = await api.login(payload);
+
+      const token = response?.token;
+
+      if (token === undefined || token === null) {
+        //todo : show error here and fix this modal to center.
+        setError("Authentication failed. Please check your credentials.");
+        setLoading(false);
+        return;
+      }
+
+      login(token);
+      onClose();
     } catch (error: any) {
-      console.error('Authentication failed:', error);
-      setError('Authentication failed. Please try again.');
+      console.error("Authentication failed:", error);
+      setError("Invalid credentials or server error.");
     } finally {
       setLoading(false);
     }
@@ -68,7 +71,9 @@ export function AuthModal({ onClose }: AuthModalProps) {
             <div className="bg-gradient-to-br from-action-primary to-stroke-accent-selected p-2 rounded-lg">
               <Lock className="h-5 w-5 text-text-on-surface" />
             </div>
-            <h2 className="text-xl font-semibold text-text-primary">Authentication Required</h2>
+            <h2 className="text-xl font-semibold text-text-primary">
+              Authentication Required
+            </h2>
           </div>
           <button
             onClick={onClose}
@@ -143,7 +148,7 @@ export function AuthModal({ onClose }: AuthModalProps) {
               disabled={loading || !credentials.userId || !credentials.password}
               className="bg-action-primary hover:bg-stroke-accent-selected text-text-on-surface"
             >
-              {loading ? 'Authenticating...' : 'Login'}
+              {loading ? "Authenticating..." : "Login"}
             </Button>
           </div>
         </form>
@@ -151,7 +156,9 @@ export function AuthModal({ onClose }: AuthModalProps) {
         <div className="px-6 pb-6">
           <div className="bg-surface-accent rounded-lg p-4">
             <p className="text-xs text-text-secondary">
-              <strong>Demo Mode:</strong> Enter any credentials to access the system. Your session will be maintained until you explicitly logout.
+              <strong>Demo Mode:</strong> Enter any credentials to access the
+              system. Your session will be maintained until you explicitly
+              logout.
             </p>
           </div>
         </div>
